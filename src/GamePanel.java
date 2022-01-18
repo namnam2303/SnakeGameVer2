@@ -7,8 +7,8 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.List;
 
-public class GamePanel2 extends JPanel implements Runnable {
-    final int WIDTH = 900;
+public class GamePanel extends JPanel implements Runnable {
+    final int WIDTH = 910;
     final int HEIGHT = 600;
     final int UNIT_SIZE = 30;
     char direction = 'R';
@@ -24,7 +24,7 @@ public class GamePanel2 extends JPanel implements Runnable {
     Thread thread;
     int speed = 100;
 
-    public GamePanel2() {
+    public GamePanel() {
         random = new Random();
         snakeBodyX = new ArrayList<>();
         snakeBodyY = new ArrayList<>();
@@ -51,34 +51,10 @@ public class GamePanel2 extends JPanel implements Runnable {
         int x = snakeBodyX.get(0);
         int y = snakeBodyY.get(0);
         switch (direction) {
-            case 'U' -> {
-                if (snakeBodyY.get(0) == 0) {
-                    snakeBodyY.set(0, HEIGHT - (UNIT_SIZE * 2));
-                } else {
-                    snakeBodyY.set(0, snakeBodyY.get(0) - UNIT_SIZE);
-                }
-            }
-            case 'D' -> {
-                if (snakeBodyY.get(0)== HEIGHT) {
-                    snakeBodyY.set(0, 0);
-                } else {
-                    snakeBodyY.set(0, snakeBodyY.get(0) + UNIT_SIZE);
-                }
-            }
-            case 'L' -> {
-                if (snakeBodyX.get(0) == 0) {
-                    snakeBodyX.set(0, WIDTH - UNIT_SIZE);
-                } else  {
-                    snakeBodyX.set(0, snakeBodyX.get(0) - (UNIT_SIZE));
-                }
-            }
-            case 'R' -> {
-                if (snakeBodyX.get(0) > WIDTH) {
-                    snakeBodyX.set(0, 0);
-                }  else {
-                    snakeBodyX.set(0, snakeBodyX.get(0) + UNIT_SIZE);
-                }
-            }
+            case 'U' -> snakeBodyY.set(0, snakeBodyY.get(0) - UNIT_SIZE);
+            case 'D' -> snakeBodyY.set(0, snakeBodyY.get(0) + UNIT_SIZE);
+            case 'L' -> snakeBodyX.set(0, snakeBodyX.get(0) - (UNIT_SIZE));
+            case 'R' -> snakeBodyX.set(0, snakeBodyX.get(0) + UNIT_SIZE);
         }
         for (int i = 1; i < bodyParts; i++) {
             int x2 = snakeBodyX.get(i);
@@ -97,6 +73,26 @@ public class GamePanel2 extends JPanel implements Runnable {
             if (snakeHeadX == snakeBodyX.get(i) && snakeHeadY == snakeBodyY.get(i)) {
                 gameOver();
             }
+        }
+        switch (direction) {
+            case 'U':
+                if (snakeBodyY.get(0) - UNIT_SIZE < 0) {
+                    gameOver();
+                }
+                break;
+            case 'D':
+                if (snakeBodyY.get(0) + UNIT_SIZE >= HEIGHT - UNIT_SIZE) {
+                    gameOver();
+                }
+                break;
+            case 'L':
+                if (snakeBodyX.get(0) - UNIT_SIZE < 0) {
+                    gameOver();
+                }
+            case 'R':
+                if (snakeBodyX.get(0) == WIDTH - UNIT_SIZE) {
+                    gameOver();
+                }
         }
     }
 
@@ -121,7 +117,7 @@ public class GamePanel2 extends JPanel implements Runnable {
             if (applesEaten > Integer.parseInt(score) && !running) {
                 upgradeScore(file);
             }
-            myScanner.close();
+                myScanner.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -137,6 +133,7 @@ public class GamePanel2 extends JPanel implements Runnable {
         myPrint.println(applesEaten);
         myPrint.close();
     }
+
 
     private void newApple() {
         appleX = random.nextInt(WIDTH / UNIT_SIZE) * UNIT_SIZE;
@@ -175,7 +172,7 @@ public class GamePanel2 extends JPanel implements Runnable {
             applesEaten++;
             newApple();
             if (applesEaten % 5 == 0) {
-                speed -= 10;
+                speed -=10;
             }
         }
     }
@@ -189,8 +186,7 @@ public class GamePanel2 extends JPanel implements Runnable {
                 eatenApple();
                 repaint();
                 Thread.sleep(speed);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
         }
     }
