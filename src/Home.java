@@ -29,7 +29,7 @@ public class Home implements ActionListener {
         frame.setSize(900, 610);
         frame.getContentPane().setBackground(new Color(50, 50, 50));
         frame.setVisible(true);
-        textfield.setBackground(new Color(25, 25, 25));
+        textfield.setBackground(Color.black);
         textfield.setForeground(new Color(255, 255, 255));
         textfield.setFont(new Font("Monaco", Font.BOLD, 75));
         textfield.setHorizontalAlignment(JLabel.CENTER);
@@ -56,7 +56,7 @@ public class Home implements ActionListener {
         btnMorden.addActionListener(this);
         btnMorden.setFont(new Font("Monaco", Font.BOLD, 120));
         btnMorden.setFocusable(false);
-        btnMorden.setBackground(new Color(25, 25, 25));
+        btnMorden.setBackground(Color.black);
         btnMorden.setForeground(new Color(0, 143, 50));
         btnMorden.setText("Classic");
         btnClassic.setSize(800, 350);
