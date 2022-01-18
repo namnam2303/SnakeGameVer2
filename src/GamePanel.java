@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.List;
 
 public class GamePanel extends JPanel implements Runnable {
-    final int WIDTH = 900;
+    final int WIDTH = 910;
     final int HEIGHT = 600;
     final int UNIT_SIZE = 30;
     char direction = 'R';
@@ -22,6 +22,7 @@ public class GamePanel extends JPanel implements Runnable {
     int highScore;
     Random random;
     Thread thread;
+    int speed = 100;
 
     public GamePanel() {
         random = new Random();
@@ -89,7 +90,7 @@ public class GamePanel extends JPanel implements Runnable {
                     gameOver();
                 }
             case 'R':
-                if (snakeBodyX.get(0) + UNIT_SIZE >= WIDTH - UNIT_SIZE) {
+                if (snakeBodyX.get(0) == WIDTH - UNIT_SIZE) {
                     gameOver();
                 }
         }
@@ -170,18 +171,21 @@ public class GamePanel extends JPanel implements Runnable {
             snakeBodyY.add(snakeBodyY.get(bodyParts - 3));
             applesEaten++;
             newApple();
+            if (applesEaten % 5 == 0) {
+                speed -=10;
+            }
         }
     }
 
     @Override
     public void run() {
         while (running) {
-            checkCollision();
-            move();
-            eatenApple();
-            repaint();
             try {
-                Thread.sleep(80);
+                checkCollision();
+                move();
+                eatenApple();
+                repaint();
+                Thread.sleep(speed);
             } catch (InterruptedException ignored) {
             }
         }
