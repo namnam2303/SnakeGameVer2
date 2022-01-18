@@ -52,27 +52,27 @@ public class GamePanel2 extends JPanel implements Runnable {
         switch (direction) {
             case 'U' -> {
                 if (snakeBodyY.get(0) == 0) {
-                    snakeBodyY.set(0, HEIGHT - UNIT_SIZE);
+                    snakeBodyY.set(0, HEIGHT - (UNIT_SIZE * 2));
                 } else {
                     snakeBodyY.set(0, snakeBodyY.get(0) - UNIT_SIZE);
                 }
             }
             case 'D' -> {
-                if (snakeBodyY.get(0) + UNIT_SIZE == HEIGHT - UNIT_SIZE) {
+                if (snakeBodyY.get(0)== HEIGHT) {
                     snakeBodyY.set(0, 0);
                 } else {
                     snakeBodyY.set(0, snakeBodyY.get(0) + UNIT_SIZE);
                 }
             }
             case 'L' -> {
-                if (snakeBodyX.get(0) - UNIT_SIZE < 0) {
+                if (snakeBodyX.get(0) == 0) {
                     snakeBodyX.set(0, WIDTH - UNIT_SIZE);
                 } else  {
                     snakeBodyX.set(0, snakeBodyX.get(0) - (UNIT_SIZE));
                 }
             }
             case 'R' -> {
-                if (snakeBodyX.get(0) + UNIT_SIZE > WIDTH - UNIT_SIZE) {
+                if (snakeBodyX.get(0) > WIDTH) {
                     snakeBodyX.set(0, 0);
                 }  else {
                     snakeBodyX.set(0, snakeBodyX.get(0) + UNIT_SIZE);
