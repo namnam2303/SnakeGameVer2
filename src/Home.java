@@ -36,7 +36,7 @@ public class Home implements ActionListener {
         textfield.setText("Game Mode");
         textfield.setOpaque(true);
         title_panel.setLayout(new BorderLayout());
-        title_panel.setBounds(0, 0, 900, 100);
+        title_panel.setBounds(0, 0, 900, 600);
         setButtons();
         title_panel.add(textfield);
         frame.add(title_panel, BorderLayout.NORTH);
@@ -58,37 +58,38 @@ public class Home implements ActionListener {
         btnMorden.setFocusable(false);
         btnMorden.setBackground(Color.black);
         btnMorden.setForeground(new Color(0, 143, 50));
-        btnMorden.setText("Classic");
+        btnMorden.setText("Modern");
         btnClassic.setSize(800, 350);
         btnClassic.addActionListener(this);
         btnClassic.setFont(new Font("Monaco", Font.BOLD, 120));
         btnClassic.setFocusable(false);
         btnClassic.setBackground(Color.black);
         btnClassic.setForeground(new Color(0, 143, 50));
-        btnClassic.setText("Modern");
+        btnClassic.setText("Classic");
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource().equals(btnMorden)) {
+        if (e.getSource().equals(btnClassic)) {
             frame.dispose();
-            new GameFrame(new GamePanel());
+            new GameFrame(new GamePanel()); // Chế độ thường
         } else {
             frame.dispose();
-            new GameFrame(new GamePanel2());
+            new GameFrame(new GamePanel2()); // Chế độ xuyên tường
         }
     }
+
 
     public static void main(String[] args) {
         new Home();
     }
     private static class GameFrame extends JFrame {
         public GameFrame(JPanel gamePanel) {
-            this.add(gamePanel);
-            this.setSize(900,610);
+            this.setSize(900,600);
             this.setLocationRelativeTo(null);
             this.setResizable(false);
             this.setVisible(true);
+            this.add(gamePanel);
             this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.setTitle("Snake v2 by NamNP");
             this.setIconImage(Toolkit.getDefaultToolkit().getImage("snake.jpg"));
