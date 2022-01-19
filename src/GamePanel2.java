@@ -13,7 +13,7 @@ public class GamePanel2 extends JPanel implements ActionListener{
     static final int WIDTH = 900;
     static final int HEIGHT = 600;
     static final int UNIT_SIZE = 30;
-    static final int DELAY = 110;
+    int delay = 110;
     List<Integer> snakeBodyX;
     List<Integer> snakeBodyY;
     int bodyParts = 3;
@@ -77,7 +77,7 @@ public class GamePanel2 extends JPanel implements ActionListener{
     private void startGame() {
         newApple();
         running = true;
-        timer = new Timer(DELAY,this);
+        timer = new Timer(delay,this);
         timer.start();
     }
 
@@ -132,7 +132,7 @@ public class GamePanel2 extends JPanel implements ActionListener{
                 }
             }
             case 'L' -> {
-                if (snakeBodyX.get(0) < 0) {
+                if (snakeBodyX.get(0) <= 0) {
                     snakeBodyX.set(0, WIDTH - UNIT_SIZE);
                 } else  {
                     snakeBodyX.set(0, snakeBodyX.get(0) - (UNIT_SIZE));
@@ -163,6 +163,10 @@ public class GamePanel2 extends JPanel implements ActionListener{
             snakeBodyY.add(snakeBodyY.get(bodyParts - 3));
             applesEaten++;
             newApple();
+            if (applesEaten % 5 == 0) {
+                timer.setDelay(delay - 10);
+                delay -= 10;
+            }
         }
     }
 
