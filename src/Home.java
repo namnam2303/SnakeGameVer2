@@ -72,20 +72,20 @@ public class Home implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(btnClassic)) {
             frame.dispose();
-            new GameFrame(new GamePanel()); // Chế độ thường
+            new GameFrame(new Mode1()); // Chế độ thường
         } else {
             frame.dispose();
-            new GameFrame(new GamePanel2()); // Chế độ xuyên tường
+            new GameFrame(new Mode2()); // Chế độ xuyên tường
         }
     }
-
 
     public static void main(String[] args) {
         new Home();
     }
+
     private static class GameFrame extends JFrame {
         public GameFrame(JPanel gamePanel) {
-            this.setSize(900,600);
+            this.setSize(900, 600);
             this.setLocationRelativeTo(null);
             this.setResizable(false);
             this.setVisible(true);

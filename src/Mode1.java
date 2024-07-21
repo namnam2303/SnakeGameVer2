@@ -5,11 +5,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class GamePanel2 extends JPanel implements ActionListener{
+public class Mode1 extends JPanel implements ActionListener {
     static final int WIDTH = 900;
     static final int HEIGHT = 600;
     static final int UNIT_SIZE = 30;
@@ -25,45 +27,28 @@ public class GamePanel2 extends JPanel implements ActionListener{
     boolean running = false;
     Timer timer;
     Random random;
+    ExecutorService executor;
 
-    GamePanel2(){
+    private final Object fileLock = new Object();
+
+    Mode1() {
+        executor = Executors.newSingleThreadExecutor();
         highScore = getHighScore();
         random = new Random();
         snakeBodyX = new ArrayList<>();
         snakeBodyY = new ArrayList<>();
         setInitialSnake();
-        this.setPreferredSize(new Dimension(WIDTH,HEIGHT));
+        this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         this.setBackground(Color.black);
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
         startGame();
     }
+
     private int getHighScore() {
-        File file = new File("highscore.txt");
-        String score = "0";
-        try {
-            Scanner myScanner = new Scanner(file);
-            while (myScanner.hasNextLine()) {
-                score = myScanner.nextLine();
-            }
-            if (applesEaten > Integer.parseInt(score) && !running) {
-                upgradeScore(file);
-            }
-            myScanner.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        synchronized (fileLock) {
+            return Integer.parseInt(readFile("highscore.txt", "0"));
         }
-        return Integer.parseInt(score);
-    }
-    private void upgradeScore(File file) {
-        PrintWriter myPrint = null;
-        try {
-            myPrint = new PrintWriter(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        myPrint.println(applesEaten);
-        myPrint.close();
     }
 
     private void setInitialSnake() {
@@ -74,10 +59,11 @@ public class GamePanel2 extends JPanel implements ActionListener{
         snakeBodyX.add(0);
         snakeBodyY.add(0);
     }
+
     private void startGame() {
         newApple();
         running = true;
-        timer = new Timer(delay,this);
+        timer = new Timer(delay, this);
         timer.start();
     }
 
@@ -117,34 +103,10 @@ public class GamePanel2 extends JPanel implements ActionListener{
         int x = snakeBodyX.get(0);
         int y = snakeBodyY.get(0);
         switch (direction) {
-            case 'U' -> {
-                if (snakeBodyY.get(0) == 0) {
-                    snakeBodyY.set(0, HEIGHT - (UNIT_SIZE * 2));
-                } else {
-                    snakeBodyY.set(0, snakeBodyY.get(0) - UNIT_SIZE);
-                }
-            }
-            case 'D' -> {
-                if (snakeBodyY.get(0) == HEIGHT - (UNIT_SIZE * 2)) {
-                    snakeBodyY.set(0, 0);
-                } else {
-                    snakeBodyY.set(0, snakeBodyY.get(0) + UNIT_SIZE);
-                }
-            }
-            case 'L' -> {
-                if (snakeBodyX.get(0) <= 0) {
-                    snakeBodyX.set(0, WIDTH - UNIT_SIZE);
-                } else  {
-                    snakeBodyX.set(0, snakeBodyX.get(0) - (UNIT_SIZE));
-                }
-            }
-            case 'R' -> {
-                if (snakeBodyX.get(0) == WIDTH - UNIT_SIZE) {
-                    snakeBodyX.set(0, 0);
-                }  else {
-                    snakeBodyX.set(0, snakeBodyX.get(0) + UNIT_SIZE);
-                }
-            }
+            case 'U' -> snakeBodyY.set(0, snakeBodyY.get(0) - UNIT_SIZE);
+            case 'D' -> snakeBodyY.set(0, snakeBodyY.get(0) + UNIT_SIZE);
+            case 'L' -> snakeBodyX.set(0, snakeBodyX.get(0) - (UNIT_SIZE));
+            case 'R' -> snakeBodyX.set(0, snakeBodyX.get(0) + UNIT_SIZE);
         }
         for (int i = 1; i < bodyParts; i++) {
             int x2 = snakeBodyX.get(i);
@@ -164,8 +126,8 @@ public class GamePanel2 extends JPanel implements ActionListener{
             applesEaten++;
             newApple();
             if (applesEaten % 5 == 0) {
-                timer.setDelay(delay - 10);
                 delay -= 10;
+                timer.setDelay(delay);
             }
         }
     }
@@ -178,27 +140,71 @@ public class GamePanel2 extends JPanel implements ActionListener{
                 gameOver();
             }
         }
+        switch (direction) {
+            case 'U':
+                if (snakeBodyY.get(0) < 0) {
+                    gameOver();
+                }
+                break;
+            case 'D':
+                if (snakeBodyY.get(0) == HEIGHT - UNIT_SIZE) {
+                    gameOver();
+                }
+                break;
+            case 'L':
+                if (snakeBodyX.get(0) < 0) {
+                    gameOver();
+                }
+            case 'R':
+                if (snakeBodyX.get(0) == WIDTH) {
+                    gameOver();
+                }
+        }
     }
 
     private void gameOver() {
         running = false;
-        if (getHighScore() < applesEaten) {
-            JOptionPane.showMessageDialog(this, "New high score: " + applesEaten, "Congratulations!", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(this, "YOUR SCORE: " + applesEaten, "Game over", JOptionPane.INFORMATION_MESSAGE);
-        }
+        executor.execute(() -> {
+            synchronized (fileLock) {
+                if (getHighScore() < applesEaten) {
+                    writeFile("highscore.txt", String.valueOf(applesEaten));
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "New high score: " + applesEaten, "Congratulations!", JOptionPane.INFORMATION_MESSAGE));
+                } else {
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "YOUR SCORE: " + applesEaten, "Game over", JOptionPane.INFORMATION_MESSAGE));
+                }
+            }
+        });
         System.exit(0);
+    }
+
+    private String readFile(String fileName, String defaultValue) {
+        File file = new File(fileName);
+        try (Scanner myScanner = new Scanner(file)) {
+            return myScanner.hasNextLine() ? myScanner.nextLine() : defaultValue;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return defaultValue;
+        }
+    }
+
+    private void writeFile(String fileName, String data) {
+        try (PrintWriter myPrint = new PrintWriter(new File(fileName))) {
+            myPrint.println(data);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(running) {
+        if (running) {
             move();
             eatenApple();
             checkCollisions();
         }
         repaint();
     }
+
     private class MyKeyAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
